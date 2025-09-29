@@ -12,6 +12,7 @@ from da_tools.variational.base import process_4dvar_inputs, sliding_window_4dvar
 from tensordict import TensorDict
 from torch import Tensor
 from torch.nn.modules.loss import _Loss
+from torch.optim.lr_scheduler import LRScheduler
 from torch.optim.optimizer import Optimizer
 
 
@@ -62,7 +63,7 @@ class HC4DVarLoss(_Loss):
         self.x0.fields = fields
         x_all = rollout(self.m_dyn, self.obs_op.time_axis, self.x0, self.dynamic_inputs, self.static_inputs)
         logp = (
-            0
+            Tensor([0.0])
             if self.background_prior is None
             else self.background_prior.log_prob(self.x0.fields).squeeze(1)
         )
@@ -83,6 +84,8 @@ def hc4dvar_single_window(
     background_prior: Distribution = None,
     optimizer_class: Type[Optimizer] = torch.optim.LBFGS,
     optimizer_pars: dict = None,
+    scheduler_class: Type[LRScheduler] = None,
+    scheduler_pars: dict = None,
     n_steps: int = 10,
     verbose: bool = False,
     check_inputs: bool = True,
@@ -119,7 +122,16 @@ def hc4dvar_single_window(
 
     loss = HC4DVarLoss(m_dyn, observations, obs_op, background_prior=background_prior)  # instantiate loss
 
-    fields = optimize(loss, x_init.fields, optimizer_class, optimizer_pars, n_steps, verbose=verbose)
+    fields = optimize(
+        loss,
+        x_init.fields,
+        optimizer_class,
+        optimizer_pars,
+        scheduler_class,
+        scheduler_pars,
+        n_steps=n_steps,
+        verbose=verbose,
+    )
     return State(fields, time_axis=x_init.time_axis)
 
 
