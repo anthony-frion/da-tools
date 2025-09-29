@@ -1,0 +1,21 @@
+tensorboard
+rich
+coverage
+pylint
+setuptools_scm
+torch-tb-profiler
+pytorch-lightning
+tensordict
+pytest
+pytest-cov
+torchmetrics
+torchvision
+gitpython
+black
+h5py
+git+https://codebase.helmholtz.cloud/m-dml/mdml-sim@main
+
+sphinx<7.0.0
+sphinx-autoapi
+sphinx-typo3-theme # sphinx theme
+seed-intersphinx-mapping
